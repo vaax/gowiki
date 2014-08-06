@@ -29,7 +29,7 @@ func loadPage(title string) (*Page, error) {
 func main() {
     http.HandleFunc("/view/", viewHandler)
     http.HandleFunc("/edit/", editHandler)
-    //http.HandleFunc("/save/", saveHandler)
+    http.HandleFunc("/save/", saveHandler)
     http.ListenAndServe(":8081", nil)
 }
 
@@ -59,11 +59,10 @@ func renderTemplate(w http.ResponseWriter,
     t.Execute(w, p)
 }
 
-//func saveHandler(w http.ResponseWriter, r *http.Request) error {
-//    title := r.URL.Path[len("/save/"):]
-//    filename := title + ".txt"
-//    err := ioutil.WriteFile(filename, byte("p.Body"), 0600)
-//    if err != nil {
-//        p = &Page{Title: title}
-//    }
-//}
+func saveHandler(w http.ResponseWriter, r *http.Request) {
+    title := r.URL.Path[len("/save/"):]
+    body := r.FormValue("body")
+    p := &Page{Title: title, Body: []byte(body)}
+    p.save()
+    http.Redirect(w, r, "/view/"+title, http.StatusFound)
+}
